@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { cn } from "../../../../utils/tailwindMerge";
-import "./index.css";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
+import "./index.css"
 
 export type TreeItem = {
   label: string;
@@ -21,11 +21,7 @@ export function AttributesTree(props: AttributeTreeProps) {
     setOpenDetails((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const renderTree = (
-    items: TreeItem[],
-    parentKey = "",
-    isChild?: boolean
-  ) => {
+  const renderTree = (items: TreeItem[], parentKey = "", isChild?: boolean) => {
     return items.map((item, index) => {
       const key = `${parentKey}-${index}`;
       const isOpen = openDetails[key] || false;
@@ -35,31 +31,32 @@ export function AttributesTree(props: AttributeTreeProps) {
           <li key={key} className={cn("list-none")}>
             <div
               className={cn(
-                "transition-all duration-300 ease-in-out text-gray-400 tree",
-                isChild ? "ml-6" : "ml-0"
+                "transition-all duration-300 ease-in-out text-gray-400",
+                isChild ? "ml-6" : "ml-0",
+                isOpen ? "tree-border" : undefined
               )}
             >
-                <summary
+              <summary
                 className={cn(
-                  "text-sm flex flex-row items-center cursor-pointer transition-all duration-200 ease-in-out hover:bg-gray-900 rounded-md mb-2",
+                  "text-sm flex flex-row items-center cursor-pointer transition-all duration-200 ease-in-out hover:bg-gray-900 rounded-md py-1",
                   isOpen ? "text-white" : "hover:text-white"
                 )}
-                >
-                  <button
+              >
+                <button
                   className={cn(
                     "px-2 py-1 flex flex-row items-center gap-2 w-full text-left cursor-pointer"
                   )}
                   onClick={() => handleToggle(key)}
-                  >
+                >
                   <ChevronRightIcon
                     className={cn([
-                    "h-4 transition-transform duration-200",
-                    isOpen ? "rotate-90" : "rotate-0",
+                      "h-4 transition-transform duration-200",
+                      isOpen ? "rotate-90" : "rotate-0",
                     ])}
                   />
                   {item.label}
-                  </button>
-                </summary>
+                </button>
+              </summary>
               {isOpen && (
                 <ul className={cn("animate-fade-down animate-duration-250")}>
                   {renderTree(item.value, key, true)}
