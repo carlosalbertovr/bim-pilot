@@ -14,19 +14,27 @@ type ItemPropertySet = {
 };
 
 export interface IViewerContext {
+  selectedLocalId: number | null;
+  selectionOrigin: "tree" | "model" | null;
   itemProperties: ItemPropertySet;
   modelTree: TreeItem[] | null;
+  updateSelectedLocalId: (id: number | null) => void;
+  updateSelectionOrigin: (origin: "tree" | "model" | null) => void;
   updateSelectedAttributes: (attributes: ItemData | null) => void;
   updateSelectedPsets: (psets: ItemPsetMap | null) => void;
   updateModelTree: (modelTree: SpatialTreeItem | null) => void;
 }
 
 export const ViewerContext = React.createContext<IViewerContext>({
+  selectedLocalId: null,
+  selectionOrigin: null,
   itemProperties: {
     selectedAttributes: null,
     selectedPsets: null,
   },
   modelTree: null,
+  updateSelectedLocalId: () => {},
+  updateSelectionOrigin: () => {},
   updateSelectedAttributes: () => {},
   updateSelectedPsets: () => {},
   updateModelTree: () => {},
@@ -39,11 +47,27 @@ type ViewerContextProviderProps = {
 export function ViewerContextProvider({
   children,
 }: ViewerContextProviderProps) {
+  const [selectedLocalId, setSelectedLocalId] = React.useState<number | null>(
+    null
+  );
+
+  const [selectionOrigin, setSelectionOrigin] = React.useState<
+    "tree" | "model" | null
+  >(null);
+
   const [itemProperties, setItemProperties] = React.useState<ItemPropertySet>({
     selectedAttributes: null,
     selectedPsets: null,
   });
   const [modelTree, setModelTree] = React.useState<TreeItem[] | null>(null);
+
+  const updateSelectedLocalId = useCallback((id: number | null) => {
+    setSelectedLocalId(id);
+  }, []);
+
+  const updateSelectionOrigin = useCallback((origin: "tree" | "model" | null) => {
+    setSelectionOrigin(origin);
+  }, []);
 
   const updateSelectedAttributes = useCallback(
     (attributes: ItemData | null) => {
@@ -93,8 +117,12 @@ export function ViewerContextProvider({
   return (
     <ViewerContext.Provider
       value={{
+        selectedLocalId,
+        selectionOrigin,
         itemProperties,
         modelTree,
+        updateSelectedLocalId,
+        updateSelectionOrigin,
         updateSelectedAttributes,
         updateSelectedPsets,
         updateModelTree,

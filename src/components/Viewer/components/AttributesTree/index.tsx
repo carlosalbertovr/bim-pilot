@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { cn } from "../../../../utils/tailwindMerge";
-import { ChevronRightIcon } from "@heroicons/react/20/solid";
-import "./index.css"
+import { FolderSimple, CaretRight, Cube } from "@phosphor-icons/react";
+import "./index.css";
+import { ViewerContext } from "../../context/ViewerContext";
 
 export type TreeItem = {
   label: string;
@@ -10,10 +11,16 @@ export type TreeItem = {
 
 type AttributeTreeProps = {
   attributes: TreeItem[];
+  isModelTree?: boolean;
 };
 
+const ICON_SIZE = 16;
+
 export function AttributesTree(props: AttributeTreeProps) {
-  const { attributes } = props;
+  const { attributes, isModelTree } = props;
+
+  const { selectedLocalId, updateSelectedLocalId, updateSelectionOrigin } =
+    useContext(ViewerContext);
 
   const [openDetails, setOpenDetails] = useState<Record<string, boolean>>({});
 
@@ -48,13 +55,32 @@ export function AttributesTree(props: AttributeTreeProps) {
                   )}
                   onClick={() => handleToggle(key)}
                 >
-                  <ChevronRightIcon
+                  <CaretRight
                     className={cn([
-                      "h-4 transition-transform duration-200",
+                      "transition-transform duration-200",
                       isOpen ? "rotate-90" : "rotate-0",
                     ])}
+                    size={ICON_SIZE}
                   />
-                  {item.label}
+                  {isModelTree && (
+                    <FolderSimple
+                      className={cn(["text-white"])}
+                      size={ICON_SIZE}
+                    />
+                  )}
+                  <p
+                    className={cn([
+                      "text-sm flex gap-1 items-center",
+                      isOpen ? "text-white" : "text-gray-400",
+                    ])}
+                  >
+                    {item.label}
+                    {isModelTree && (
+                      <span className={cn(["text-xs text-gray-400"])}>
+                        {item.value.length > 0 ? ` (${item.value.length})` : ""}
+                      </span>
+                    )}
+                  </p>
                 </button>
               </summary>
               {isOpen && (
@@ -65,28 +91,50 @@ export function AttributesTree(props: AttributeTreeProps) {
             </div>
           </li>
         );
-      }
-      return (
-        <li
-          key={key}
-          className={cn([
-            "flex flex-col gap-1",
-            "mb-3",
-            isChild ? "ml-7.5" : "ml-0",
-          ])}
-        >
-          <p className={cn(["text-xs"])}>{item.label}: </p>
-          <div
-            className={cn([
-              "flex flex-row items-center gap-2 bg-gray-900 px-2 py-1 rounded-md",
-            ])}
+      } else if (!isModelTree) {
+        return (
+          <li
+            key={key}
+            className={cn(["flex flex-col gap-1", isChild ? "ml-6" : "ml-0"])}
           >
-            <p className={cn(["text-sm dark:text-white"])}>
-              {item.value === "" ? "N/A" : item.value}
-            </p>
-          </div>
-        </li>
-      );
+            <div className="pb-3">
+              <p className={cn(["text-xs capitalize"])}>{item.label}: </p>
+              <div
+                className={cn([
+                  "flex flex-row items-center gap-2 bg-gray-900 px-2 py-1 rounded-md",
+                ])}
+              >
+                <p className={cn(["text-sm dark:text-white"])}>
+                  {item.value === "" ? "N/A" : item.value}
+                </p>
+              </div>
+            </div>
+          </li>
+        );
+      } else {
+        return (
+          <li
+            key={key}
+            className={cn(["flex flex-col gap-1", isChild ? "ml-6" : "ml-0"])}
+          >
+            <div
+              onClick={() => {
+                updateSelectionOrigin("tree");
+                updateSelectedLocalId(Number(item.label));
+              }}
+              className={cn([
+                "flex items-center gap-2 cursor-pointer transition-all duration-200 font-semibold ease-in-out hover:bg-gray-900 rounded-md py-1 px-2",
+                selectedLocalId === Number(item.label)
+                  ? "bg-gray-800"
+                  : undefined,
+              ])}
+            >
+              <Cube className={cn(["text-white"])} size={ICON_SIZE} />
+              <p className={cn(["text-sm dark:text-white"])}>{item.label}</p>
+            </div>
+          </li>
+        );
+      }
     });
   };
 

@@ -13,7 +13,7 @@ export function ModelTreeSection() {
       {modelTree ? (
         <div className={cn(["flex flex-col gap-4 overflow-y-auto h-full"])}>
           <div>
-            <AttributesTree attributes={modelTree} />
+            <AttributesTree attributes={modelTree} isModelTree />
           </div>
         </div>
       ) : (

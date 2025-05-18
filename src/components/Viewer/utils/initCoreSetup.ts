@@ -6,11 +6,12 @@ const WORKER_PATH =
 
 type InitCoreSetupProps = {
   world: OBC.SimpleWorld<OBC.SimpleScene, OBC.SimpleCamera, OBC.SimpleRenderer>;
+  fragmentsManager: OBC.FragmentsManager;
   fragmentsUrl: string;
 };
 
 export async function initCoreSetup(props: InitCoreSetupProps) {
-  const { world, fragmentsUrl } = props;
+  const { world, fragmentsUrl, fragmentsManager } = props;
 
   const fetchedWorker = await fetch(WORKER_PATH);
   const workerText = await fetchedWorker.text();
@@ -49,6 +50,8 @@ export async function initCoreSetup(props: InitCoreSetupProps) {
   }
 
   const buffer = await file.arrayBuffer();
+
+  fragmentsManager.load(new Uint8Array(buffer));
 
   const model = await fragments.load(buffer, { modelId: fragmentsFileName });
 
